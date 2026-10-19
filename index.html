@@ -1,1 +1,155 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Elektrospecialista DATART</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#ff6600">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- ÚVODNÍ OBRAZOVKA -->
+        <section id="screen-menu" class="screen active">
+            <div class="menu-header">
+                <h1>⚡ Elektrospecialista</h1>
+                <p class="subtitle">Fanouškovská parodie z prodejny elektro</p>
+            </div>
+            <div class="menu-buttons">
+                <button id="btn-new-game" class="btn primary">Nová směna</button>
+                <button id="btn-continue" class="btn secondary" style="display:none;">Pokračovat v rozestavěné směně</button>
+                <button id="btn-stats" class="btn outline">Statistiky a úspěchy</button>
+                <button id="btn-settings" class="btn outline">Nastavení a data</button>
+            </div>
+            <div class="menu-footer">
+                <p>Verze 1.0.0 | Offline PWA ready</p>
+            </div>
+        </section>
+
+        <!-- HLAVNÍ HRADNÍ OBRAZOVKA / PRODEJNA -->
+        <section id="screen-game" class="screen">
+            <header class="game-header">
+                <div class="kpi-mini">
+                    <span>Obrat: <strong id="hud-turnover">0</strong> Kč</span>
+                    <span>Plán: <strong id="hud-target">10000</strong> Kč</span>
+                </div>
+                <div class="kpi-mini">
+                    <span>Stres: <strong id="hud-stress">0</strong>%</span>
+                    <span>Kolo: <strong id="hud-round">1</strong>/10</span>
+                </div>
+                <button id="btn-pause-menu" class="btn-icon">⏸️</button>
+            </header>
+
+            <div class="store-floor">
+                <div id="customer-card" class="customer-card">
+                    <div class="customer-avatar">🧑‍💼</div>
+                    <div class="customer-info">
+                        <h3 id="customer-name">Zákazník</h3>
+                        <p id="customer-archetype-name" class="archetype-tag">Archetyp</p>
+                        <p id="customer-dialog" class="speech-bubble">„Dobrý den...“</p>
+                    </div>
+                </div>
+
+                <div class="interaction-panel">
+                    <h3>Nabídka pro zákazníka</h3>
+                    <div id="product-recommendation-area" class="recommendation-list">
+                        <!-- Dynamicky generované produkty a služby -->
+                    </div>
+                </div>
+            </div>
+
+            <footer class="game-footer">
+                <div class="quick-stats">
+                    <span>Marže: <strong id="hud-margin">0</strong> Kč</span>
+                    <span>Spokojenost: <strong id="hud-satisfaction">100</strong>%</span>
+                </div>
+            </footer>
+        </section>
+
+        <!-- OBRAZOVKA UDÁLOSTI -->
+        <section id="screen-event" class="screen">
+            <div class="event-card">
+                <h2>⚠️ Mimořádná událost na prodejně!</h2>
+                <p id="event-title" class="event-title">Název události</p>
+                <p id="event-desc" class="event-desc">Popis situace...</p>
+                <div id="event-options" class="event-options">
+                    <!-- Tlačítka voleb události -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VYHODNOCENÍ SMĚNY -->
+        <section id="screen-summary" class="screen">
+            <div class="summary-card">
+                <h2>📊 Konec směny – Výsledkový report</h2>
+                <p id="summary-quote" class="summary-quote">„Přežil jsi to.“</p>
+                
+                <div class="stats-table">
+                    <div class="stat-row"><span>Celkový obrat:</span> <strong id="sum-turnover">0 Kč</strong></div>
+                    <div class="stat-row"><span>Hrubá marže:</span> <strong id="sum-margin">0 Kč</strong></div>
+                    <div class="stat-row"><span>Plnění obratu:</span> <strong id="sum-target-pct">0%</strong></div>
+                    <div class="stat-row"><span>Obslouženo zákazníků:</span> <strong id="sum-customers">0</strong></div>
+                    <div class="stat-row"><span>Prodané služby:</span> <strong id="sum-services">0</strong></div>
+                    <div class="stat-row"><span>Průměrná spokojenost:</span> <strong id="sum-satisfaction">0%</strong></div>
+                    <div class="stat-row"><span>Konečný stres:</span> <strong id="sum-stress">0%</strong></div>
+                </div>
+
+                <button id="btn-finish-shift" class="btn primary">Zpět do menu</button>
+            </div>
+        </section>
+
+        <!-- STATISTIKY A HISTORIE -->
+        <section id="screen-stats" class="screen">
+            <div class="panel-header">
+                <h2>🏆 Statistiky a úspěchy</h2>
+                <button class="btn-close btn outline">Zpět</button>
+            </div>
+            <div class="stats-content">
+                <p>Odehraných směn: <span id="stat-total-shifts">0</span></p>
+                <p>Nejvyšší obrat: <span id="stat-max-turnover">0</span> Kč</p>
+                <p>Celkově prodáno zboží: <span id="stat-total-revenue">0</span> Kč</p>
+                <h3>Historie směn</h3>
+                <ul id="history-list" class="history-list"></ul>
+            </div>
+        </section>
+
+        <!-- NASTAVENÍ A DATA -->
+        <section id="screen-settings" class="screen">
+            <div class="panel-header">
+                <h2>⚙️ Nastavení a správa dat</h2>
+                <button class="btn-close btn outline">Zpět</button>
+            </div>
+            <div class="settings-content">
+                <div class="setting-item">
+                    <label><input type="checkbox" id="setting-sound" checked> Povolit zvukové efekty</label>
+                </div>
+                <div class="setting-item">
+                    <label><input type="checkbox" id="setting-animations" checked> Povolit animace</label>
+                </div>
+                <div class="settings-actions">
+                    <button id="btn-export" class="btn secondary">Exportovat data (JSON)</button>
+                    <label class="btn secondary file-upload-label">
+                        Importovat data <input type="file" id="file-import" accept=".json" style="display:none;">
+                    </label>
+                    <button id="btn-reset" class="btn danger">Resetovat celý postup</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="game.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('ServiceWorker zaregistrován:', reg.scope))
+                    .catch(err => console.log('Chyba registrace ServiceWorkeru:', err));
+            });
+        }
+    </script>
+</body>
+</html>
 
