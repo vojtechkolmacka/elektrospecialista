@@ -10,7 +10,7 @@ class Game {
     }
 
     loadLocalStorage() {
-        const saved = localStorage.getItem('elektro_save_v5');
+        const saved = localStorage.getItem('elektro_save_v6');
         if (saved) {
             try {
                 const data = JSON.parse(saved);
@@ -22,7 +22,7 @@ class Game {
     }
 
     saveLocalStorage() {
-        localStorage.setItem('elektro_save_v5', JSON.stringify({ state: this.state, stats: this.stats }));
+        localStorage.setItem('elektro_save_v6', JSON.stringify({ state: this.state, stats: this.stats }));
     }
 
     initListeners() {
@@ -46,7 +46,7 @@ class Game {
         });
 
         document.getElementById('btn-reset').addEventListener('click', () => {
-            if (confirm("Opravdu vymazat postup?")) { localStorage.removeItem('elektro_save_v5'); location.reload(); }
+            if (confirm("Opravdu vymazat postup?")) { localStorage.removeItem('elektro_save_v6'); location.reload(); }
         });
     }
 
@@ -84,7 +84,7 @@ class Game {
             archetype: arch.name, 
             avatar: arch.avatar, 
             dialog: dlg, 
-            requiredBatteries: arch.requiredBatteries !== undefined ? arch.requiredBatteries : (Math.floor(Math.random() * 4) + 1) 
+            requiredBatteries: Math.floor(Math.random() * 5) + 1 
         };
         this.saveLocalStorage();
         this.renderCustomer();
@@ -106,7 +106,7 @@ class Game {
         const area = document.getElementById('product-recommendation-area');
         area.innerHTML = '';
 
-        // 1. Tlačítko prodeje baterií
+        // 1. Tlačítko prodeje požadovaných baterií
         const batProd = PRODUCTS_DATA.find(p => p.category === 'baterie') || PRODUCTS_DATA[0];
         const batDiv = document.createElement('div');
         batDiv.className = 'rec-item';
@@ -120,7 +120,7 @@ class Game {
         });
         area.appendChild(batDiv);
 
-        // 2. Náhodný doplňkový produkt (nebo fólie)
+        // 2. Náhodný doplňkový produkt / minihra s fólií
         const prod = PRODUCTS_DATA[Math.floor(Math.random() * PRODUCTS_DATA.length)];
         const pDiv = document.createElement('div');
         pDiv.className = 'rec-item';
@@ -134,20 +134,16 @@ class Game {
         });
         area.appendChild(pDiv);
 
-        // 3. Tlačítko pro ignorování / odmítnutí baterií (sankce)
+        // 3. Možnost odmítnout / neprodat baterie (sankce od vedoucího)
         const skip = document.createElement('div');
         skip.className = 'rec-item';
         skip.style.background = '#3f3f46';
         skip.innerHTML = `<div class="rec-info"><div class="title" style="color: var(--danger);">❌ Odmítnout / Ignorovat baterie</div></div>`;
         skip.addEventListener('click', () => {
-            if (cust.requiredBatteries > 0) {
-                const fine = cust.requiredBatteries * 50;
-                this.state.turnover = Math.max(0, this.state.turnover - fine);
-                this.state.stress += 12;
-                alert(`💸 Zákazník chtěl ${cust.requiredBatteries} baterií a ty j му je neprodal! Vedoucí ti udělil sankci -${fine} Kč.`);
-            } else {
-                alert("Zákazník odešel bez nákupu.");
-            }
+            const fine = cust.requiredBatteries * 50;
+            this.state.turnover = Math.max(0, this.state.turnover - fine);
+            this.state.stress += 12;
+            alert(`💸 Zákazník chtěl ${cust.requiredBatteries} baterií a ty jsi mu je neprodal! Vedoucí ti udělil finanční sankci -${fine} Kč.`);
             this.state.customersServed++;
             this.state.round++;
             this.saveLocalStorage();
@@ -231,7 +227,7 @@ class Game {
         const content = document.getElementById('minigame-content');
         content.innerHTML = `
             <p style="margin-bottom:5px; font-size:0.8rem;">Chyť 6 poletujících lelků!</p>
-            <div class="phone-screen" style="height:260px; position:relative; background:#18181b;">
+            <div class="phone-screen" style="height:240px; position:relative; background:#18181b; margin:0 auto;">
                 <div id="lelky-target" style="position:absolute; font-size:2.5rem; cursor:pointer; top:80px; left:80px;">🦅</div>
             </div>
             <p id="lelky-score" style="margin-top:5px;">Chyceno lelků: 0 / 6</p>
@@ -252,7 +248,7 @@ class Game {
                 this.renderCustomer();
             } else {
                 target.innerText = icons[Math.floor(Math.random() * icons.length)];
-                target.style.top = `${Math.random() * 180 + 20}px`;
+                target.style.top = `${Math.random() * 160 + 20}px`;
                 target.style.left = `${Math.random() * 140 + 20}px`;
             }
         };
@@ -316,10 +312,10 @@ class Game {
         const content = document.getElementById('minigame-content');
         content.innerHTML = `
             <p style="margin-bottom:5px; font-size:0.75rem;">Odstraňuj prach a klikni na uskakující tlačítko!</p>
-            <div style="height:200px; width:220px; position:relative; background:#000; margin:0 auto; border:4px solid #444; border-radius:12px; overflow:hidden;">
+            <div style="height:180px; width:220px; position:relative; background:#000; margin:0 auto; border:4px solid #444; border-radius:12px; overflow:hidden;">
                 <div id="dust-box"></div>
             </div>
-            <div style="margin-top:15px; position:relative; height:45px;">
+            <div style="margin-top:10px; position:relative; height:45px;">
                 <button id="btn-confirm-foil" class="btn primary" style="position:absolute; left:50%; transform:translateX(-50%); padding:8px 16px;">Nalepit fólii</button>
             </div>
         `;
@@ -337,7 +333,7 @@ class Game {
                 p.style.background = '#fff';
                 p.style.borderRadius = '50%';
                 p.style.cursor = 'pointer';
-                p.style.top = `${Math.random() * 160 + 15}px`;
+                p.style.top = `${Math.random() * 140 + 15}px`;
                 p.style.left = `${Math.random() * 180 + 15}px`;
                 p.style.boxShadow = '0 0 4px #ff6600';
                 p.onclick = () => { p.remove(); dustCount = Math.max(0, dustCount - 1); };
@@ -350,7 +346,7 @@ class Game {
 
         const foilBtn = document.getElementById('btn-confirm-foil');
         const randomizeBtnPos = () => {
-            const randomX = (Math.random() * 160) - 80;
+            const randomX = (Math.random() * 140) - 70;
             foilBtn.style.transform = `translateX(calc(-50% + ${randomX}px))`;
         };
 
