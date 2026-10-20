@@ -19,8 +19,20 @@ body { background-color: var(--bg-color); color: var(--text-color); display: fle
 }
 @media (min-width: 481px) { .app-container { border-radius: var(--border-radius); height: 85vh; } }
 
-.screen { display: none; flex-direction: column; height: 100%; padding: 20px; overflow-y: auto; }
+.screen { display: none; flex-direction: column; height: 100%; padding: 15px; overflow-y: auto; }
 .screen.active { display: flex; }
+
+/* Speciální pevný layout pro herní obrazovku, aby nic neuteklo z displeje */
+#screen-game {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    padding: 15px;
+    overflow: hidden;
+}
+#screen-game.active {
+    display: flex;
+}
 
 .btn {
     background-color: var(--primary); color: white; border: none; padding: 12px 18px;
@@ -40,28 +52,44 @@ body { background-color: var(--bg-color); color: var(--text-color); display: fle
 .subtitle { color: var(--text-muted); font-size: 0.95rem; }
 .menu-buttons { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; }
 
-.game-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 2px solid #3f3f46; font-size: 0.85rem; }
-.store-floor { flex: 1; display: flex; flex-direction: column; gap: 15px; padding: 15px 0; overflow-y: auto; }
+.game-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 2px solid #3f3f46; font-size: 0.85rem; }
 
-.customer-card { background: #3f3f46; border: 2px solid #52525b; border-radius: var(--border-radius); padding: 15px; display: flex; gap: 15px; align-items: flex-start; }
-.customer-avatar { font-size: 2.5rem; background: #27272a; padding: 10px; border-radius: 50%; }
-.customer-info h3 { font-size: 1.1rem; margin-bottom: 2px; }
-.archetype-tag { font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-bottom: 8px; }
-.speech-bubble { font-style: italic; background: #27272a; padding: 10px; border-radius: 8px; font-size: 0.95rem; border: 1px solid #3f3f46; }
+.store-floor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 0;
+    overflow-y: auto; /* Pouze tato část scroluje, pokud je obsah dlouhý */
+}
 
-.recommendation-list { display: flex; flex-direction: column; gap: 10px; }
+.customer-card { background: #3f3f46; border: 2px solid #52525b; border-radius: var(--border-radius); padding: 12px; display: flex; gap: 12px; align-items: flex-start; flex-shrink: 0; }
+.customer-avatar { font-size: 2.2rem; background: #27272a; padding: 8px; border-radius: 50%; }
+.customer-info h3 { font-size: 1rem; margin-bottom: 2px; }
+.archetype-tag { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 6px; }
+.speech-bubble { font-style: italic; background: #27272a; padding: 8px; border-radius: 8px; font-size: 0.9rem; border: 1px solid #3f3f46; }
+
+.recommendation-list { display: flex; flex-direction: column; gap: 8px; }
 .rec-item {
-    background: #3f3f46; border: 1px solid #52525b; padding: 12px; border-radius: 8px;
+    background: #3f3f46; border: 1px solid #52525b; padding: 10px 12px; border-radius: 8px;
     display: flex; justify-content: space-between; align-items: center; cursor: pointer;
 }
 .rec-item:hover { border-color: var(--primary); }
-.rec-info .title { font-weight: bold; font-size: 0.95rem; color: #fff; }
-.rec-info .price { font-size: 0.85rem; color: var(--text-muted); }
+.rec-info .title { font-weight: bold; font-size: 0.9rem; color: #fff; }
+.rec-info .price { font-size: 0.8rem; color: var(--text-muted); }
 
-.game-footer { padding-top: 10px; border-top: 1px solid #3f3f46; display: flex; flex-direction: column; gap: 8px; }
-.quick-stats { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted); }
+.game-footer {
+    flex-shrink: 0; /* Zajišťuje, že patička se nikdy nezcvrkne ani neschová */
+    padding-top: 10px;
+    border-top: 1px solid #3f3f46;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--card-bg);
+}
+.quick-stats { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); }
 .action-bar-bottom { display: flex; gap: 6px; }
-.action-bar-bottom button { flex: 1; padding: 6px; }
+.action-bar-bottom button { flex: 1; padding: 8px 4px; font-size: 0.75rem; }
 
 /* Minihry styly */
 .minigame-container { display: flex; flex-direction: column; height: 100%; justify-content: space-between; text-align: center; }
@@ -76,7 +104,6 @@ body { background-color: var(--bg-color); color: var(--text-color); display: fle
 .keyhole-view { width: 220px; height: 220px; background: radial-gradient(circle, transparent 20%, #000 70%); border-radius: 50%; margin: 0 auto; position: relative; }
 .boss-eye { position: absolute; font-size: 3.5rem; cursor: pointer; transition: transform 0.1s; }
 
-/* Skladové balíky */
 .warehouse-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 320px; margin: 10px auto; }
 .warehouse-box { background: #3f3f46; border: 2px solid #52525b; padding: 15px; border-radius: 8px; font-size: 1.8rem; cursor: pointer; text-align: center; }
 .warehouse-box:hover { border-color: var(--primary); }
