@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Elektrospecialista DATART</title>
+    <title>Elektrospecialista DATART – Deluxe Edition</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#ff6600">
@@ -11,24 +11,24 @@
 </head>
 <body>
     <div id="app" class="app-container">
-        <!-- ÚVODNÍ OBRAZOVKA -->
+        <!-- ÚVODNÍ MENU -->
         <section id="screen-menu" class="screen active">
             <div class="menu-header">
                 <h1>⚡ Elektrospecialista</h1>
-                <p class="subtitle">Fanouškovská parodie z prodejny elektro</p>
+                <p class="subtitle">Parodie ze zázemí elektra (S údržbou vedoucího)</p>
             </div>
             <div class="menu-buttons">
-                <button id="btn-new-game" class="btn primary">Nová směna</button>
-                <button id="btn-continue" class="btn secondary" style="display:none;">Pokračovat v rozestavěné směně</button>
+                <button id="btn-new-game" class="btn primary">Nová směna (Přežít)</button>
+                <button id="btn-continue" class="btn secondary" style="display:none;">Pokračovat ve směně</button>
                 <button id="btn-stats" class="btn outline">Statistiky a úspěchy</button>
-                <button id="btn-settings" class="btn outline">Nastavení a data</button>
+                <button id="btn-settings" class="btn outline">Nastavení</button>
             </div>
             <div class="menu-footer">
-                <p>Verze 1.0.0 | Offline PWA ready</p>
+                <p>Verze 2.0 | Záchod & Fólie Update</p>
             </div>
         </section>
 
-        <!-- HLAVNÍ HRADNÍ OBRAZOVKA / PRODEJNA -->
+        <!-- HLAVNÍ PRODEJNA / HRA -->
         <section id="screen-game" class="screen">
             <header class="game-header">
                 <div class="kpi-mini">
@@ -43,8 +43,9 @@
             </header>
 
             <div class="store-floor">
+                <!-- Zákazník / Akce -->
                 <div id="customer-card" class="customer-card">
-                    <div class="customer-avatar">🧑‍💼</div>
+                    <div class="customer-avatar" id="avatar-icon">🧑‍💼</div>
                     <div class="customer-info">
                         <h3 id="customer-name">Zákazník</h3>
                         <p id="customer-archetype-name" class="archetype-tag">Archetyp</p>
@@ -53,9 +54,9 @@
                 </div>
 
                 <div class="interaction-panel">
-                    <h3>Nabídka pro zákazníka</h3>
+                    <h3 id="panel-title">Nabídka pro zákazníka</h3>
                     <div id="product-recommendation-area" class="recommendation-list">
-                        <!-- Dynamicky generované produkty a služby -->
+                        <!-- Tlačítka produktů / miniher -->
                     </div>
                 </div>
             </div>
@@ -65,76 +66,73 @@
                     <span>Marže: <strong id="hud-margin">0</strong> Kč</span>
                     <span>Spokojenost: <strong id="hud-satisfaction">100</strong>%</span>
                 </div>
+                <div class="action-bar-bottom">
+                    <button id="btn-toilet" class="btn secondary" style="font-size:0.8rem; padding:8px;">🚽 Schovat na WC</button>
+                    <button id="btn-keyhole" class="btn secondary" style="font-size:0.8rem; padding:8px;">👁️ Klíčová dírka</button>
+                </div>
             </footer>
         </section>
 
-        <!-- OBRAZOVKA UDÁLOSTI -->
-        <section id="screen-event" class="screen">
-            <div class="event-card">
-                <h2>⚠️ Mimořádná událost na prodejně!</h2>
-                <p id="event-title" class="event-title">Název události</p>
-                <p id="event-desc" class="event-desc">Popis situace...</p>
-                <div id="event-options" class="event-options">
-                    <!-- Tlačítka voleb události -->
+        <!-- MINIHERNÍ OKNO (Fólie, Klíčová dírka, Balíky) -->
+        <section id="screen-minigame" class="screen">
+            <div class="minigame-container">
+                <h2 id="minigame-title">Minihra</h2>
+                <div id="minigame-content" class="minigame-content">
+                    <!-- Dynamický obsah minihry -->
                 </div>
+                <button id="btn-close-minigame" class="btn primary" style="margin-top: 15px;">Ukončit / Zpět na plac</button>
             </div>
         </section>
 
-        <!-- VYHODNOCENÍ SMĚNY -->
+        <!-- UDÁLOST -->
+        <section id="screen-event" class="screen">
+            <div class="event-card">
+                <h2>⚠️ Mimořádná událost!</h2>
+                <p id="event-title" class="event-title">Název</p>
+                <p id="event-desc" class="event-desc">Popis...</p>
+                <div id="event-options" class="event-options"></div>
+            </div>
+        </section>
+
+        <!-- VYHODNOCENÍ -->
         <section id="screen-summary" class="screen">
             <div class="summary-card">
-                <h2>📊 Konec směny – Výsledkový report</h2>
+                <h2>📊 Konec směny</h2>
                 <p id="summary-quote" class="summary-quote">„Přežil jsi to.“</p>
-                
                 <div class="stats-table">
-                    <div class="stat-row"><span>Celkový obrat:</span> <strong id="sum-turnover">0 Kč</strong></div>
-                    <div class="stat-row"><span>Hrubá marže:</span> <strong id="sum-margin">0 Kč</strong></div>
-                    <div class="stat-row"><span>Plnění obratu:</span> <strong id="sum-target-pct">0%</strong></div>
-                    <div class="stat-row"><span>Obslouženo zákazníků:</span> <strong id="sum-customers">0</strong></div>
-                    <div class="stat-row"><span>Prodané služby:</span> <strong id="sum-services">0</strong></div>
-                    <div class="stat-row"><span>Průměrná spokojenost:</span> <strong id="sum-satisfaction">0%</strong></div>
-                    <div class="stat-row"><span>Konečný stres:</span> <strong id="sum-stress">0%</strong></div>
+                    <div class="stat-row"><span>Obrat:</span> <strong id="sum-turnover">0 Kč</strong></div>
+                    <div class="stat-row"><span>Marže:</span> <strong id="sum-margin">0 Kč</strong></div>
+                    <div class="stat-row"><span>Splnění plánu:</span> <strong id="sum-target-pct">0%</strong></div>
+                    <div class="stat-row"><span>Zákazníci:</span> <strong id="sum-customers">0</strong></div>
+                    <div class="stat-row"><span>Stres na konci:</span> <strong id="sum-stress">0%</strong></div>
                 </div>
-
                 <button id="btn-finish-shift" class="btn primary">Zpět do menu</button>
             </div>
         </section>
 
-        <!-- STATISTIKY A HISTORIE -->
+        <!-- STATISTIKY -->
         <section id="screen-stats" class="screen">
             <div class="panel-header">
-                <h2>🏆 Statistiky a úspěchy</h2>
+                <h2>🏆 Statistiky</h2>
                 <button class="btn-close btn outline">Zpět</button>
             </div>
             <div class="stats-content">
                 <p>Odehraných směn: <span id="stat-total-shifts">0</span></p>
                 <p>Nejvyšší obrat: <span id="stat-max-turnover">0</span> Kč</p>
-                <p>Celkově prodáno zboží: <span id="stat-total-revenue">0</span> Kč</p>
-                <h3>Historie směn</h3>
+                <h3>Historie</h3>
                 <ul id="history-list" class="history-list"></ul>
             </div>
         </section>
 
-        <!-- NASTAVENÍ A DATA -->
+        <!-- NASTAVENÍ -->
         <section id="screen-settings" class="screen">
             <div class="panel-header">
-                <h2>⚙️ Nastavení a správa dat</h2>
+                <h2>⚙️ Nastavení</h2>
                 <button class="btn-close btn outline">Zpět</button>
             </div>
             <div class="settings-content">
-                <div class="setting-item">
-                    <label><input type="checkbox" id="setting-sound" checked> Povolit zvukové efekty</label>
-                </div>
-                <div class="setting-item">
-                    <label><input type="checkbox" id="setting-animations" checked> Povolit animace</label>
-                </div>
-                <div class="settings-actions">
-                    <button id="btn-export" class="btn secondary">Exportovat data (JSON)</button>
-                    <label class="btn secondary file-upload-label">
-                        Importovat data <input type="file" id="file-import" accept=".json" style="display:none;">
-                    </label>
-                    <button id="btn-reset" class="btn danger">Resetovat celý postup</button>
-                </div>
+                <button id="btn-export" class="btn secondary">Exportovat data</button>
+                <button id="btn-reset" class="btn danger" style="margin-top:10px;">Resetovat hru</button>
             </div>
         </section>
     </div>
@@ -144,12 +142,9 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('ServiceWorker zaregistrován:', reg.scope))
-                    .catch(err => console.log('Chyba registrace ServiceWorkeru:', err));
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
             });
         }
     </script>
 </body>
 </html>
-
