@@ -80,7 +80,12 @@ class Game {
 
         const arch = CUSTOMER_ARCHETYPES[Math.floor(Math.random() * CUSTOMER_ARCHETYPES.length)];
         const dlg = arch.dialogs[Math.floor(Math.random() * arch.dialogs.length)];
-        this.state.currentCustomer = { archetype: arch.name, avatar: arch.avatar, dialog: dlg, requiredBatteries: arch.requiredBatteries };
+        this.state.currentCustomer = { 
+            archetype: arch.name, 
+            avatar: arch.avatar, 
+            dialog: dlg, 
+            requiredBatteries: arch.requiredBatteries !== undefined ? arch.requiredBatteries : (Math.floor(Math.random() * 4) + 1) 
+        };
         this.saveLocalStorage();
         this.renderCustomer();
     }
@@ -101,8 +106,8 @@ class Game {
         const area = document.getElementById('product-recommendation-area');
         area.innerHTML = '';
 
-        // Tlačítko prodeje baterií podle požadavku zákazníka
-        const batProd = PRODUCTS_DATA.find(p => p.category === 'baterie');
+        // 1. Tlačítko prodeje baterií
+        const batProd = PRODUCTS_DATA.find(p => p.category === 'baterie') || PRODUCTS_DATA[0];
         const batDiv = document.createElement('div');
         batDiv.className = 'rec-item';
         batDiv.style.border = '2px solid var(--primary)';
@@ -111,11 +116,11 @@ class Game {
             <button class="btn primary" style="padding:6px 12px; font-size:0.8rem;">Prodat</button>
         `;
         batDiv.addEventListener('click', () => {
-            this.makeBatterySale(batProd, cust.requiredBatteries, true);
+            this.makeBatterySale(batProd, cust.requiredBatteries);
         });
         area.appendChild(batDiv);
 
-        // Náhodný další produkt nebo minihra s fólií
+        // 2. Náhodný doplňkový produkt (nebo fólie)
         const prod = PRODUCTS_DATA[Math.floor(Math.random() * PRODUCTS_DATA.length)];
         const pDiv = document.createElement('div');
         pDiv.className = 'rec-item';
@@ -125,23 +130,23 @@ class Game {
         `;
         pDiv.addEventListener('click', () => {
             if (prod.minigame === 'foil') this.startFoilMinigame(prod);
-            else this.makeBatterySale(prod, 0, false);
+            else this.makeBatterySale(prod, 1);
         });
         area.appendChild(pDiv);
 
-        // Možnost odmítnout / neprodat baterie (pokud je zákazník vyžadoval -> sankce)
+        // 3. Tlačítko pro ignorování / odmítnutí baterií (sankce)
         const skip = document.createElement('div');
         skip.className = 'rec-item';
         skip.style.background = '#3f3f46';
-        skip.innerHTML = `<div class="rec-info"><div class="title" style="color: var(--danger);">Odmítnout / Ignorovat baterie</div></div>`;
+        skip.innerHTML = `<div class="rec-info"><div class="title" style="color: var(--danger);">❌ Odmítnout / Ignorovat baterie</div></div>`;
         skip.addEventListener('click', () => {
             if (cust.requiredBatteries > 0) {
                 const fine = cust.requiredBatteries * 50;
                 this.state.turnover = Math.max(0, this.state.turnover - fine);
                 this.state.stress += 12;
-                alert(`💸 Zákazník chtěl ${cust.requiredBatteries} baterií, ale odešel s prázdnou! Vedoucí ti udělil finanční sankci -${fine} Kč z osobního ohodnocení.`);
+                alert(`💸 Zákazník chtěl ${cust.requiredBatteries} baterií a ty j му je neprodal! Vedoucí ti udělil sankci -${fine} Kč.`);
             } else {
-                alert("Zákazník odešel bez nákupu, ale žádné baterie nepožadoval.");
+                alert("Zákazník odešel bez nákupu.");
             }
             this.state.customersServed++;
             this.state.round++;
@@ -151,10 +156,9 @@ class Game {
         area.appendChild(skip);
     }
 
-    makeBatterySale(item, count, isBattery) {
-        const totalCount = isBattery ? count : 1;
-        const totalPrice = item.price * totalCount;
-        const totalCost = item.cost * totalCount;
+    makeBatterySale(item, count) {
+        const totalPrice = item.price * count;
+        const totalCost = item.cost * count;
 
         this.state.turnover += totalPrice;
         this.state.margin += (totalPrice - totalCost);
@@ -167,7 +171,6 @@ class Game {
 
     // --- MINIHRY ---
 
-    // 1. Klíčová dírka s uhýbajícím okem a časovačem
     startKeyholeMinigame() {
         this.showScreen('screen-minigame');
         document.getElementById('minigame-title').innerText = "👁️ Párátko v oku vedoucího";
@@ -195,19 +198,15 @@ class Game {
                 clearInterval(timer);
                 clearInterval(moveLoop);
                 this.state.stress += 20;
-                alert("⏰ Čas vypršel! Vedoucí tě přistihl u klíčové dírky. Stres +20%!");
+                alert("⏰ Čas vypršel! Vedoucí tě přistihl. Stres +20%!");
                 this.showScreen('screen-game');
                 this.renderCustomer();
             }
         }, 1000);
 
         const moveLoop = setInterval(() => {
-            const x = Math.random() * 140;
-            const y = Math.random() * 140;
-            const scale = Math.random() * 0.8 + 0.6;
-            eye.style.left = `${x}px`;
-            eye.style.top = `${y}px`;
-            eye.style.transform = `scale(${scale})`;
+            eye.style.left = `${Math.random() * 140}px`;
+            eye.style.top = `${Math.random() * 140}px`;
         }, 400);
 
         eye.onclick = () => {
@@ -217,14 +216,13 @@ class Game {
                 clearInterval(timer);
                 clearInterval(moveLoop);
                 this.state.stress = Math.max(0, this.state.stress - 30);
-                alert("🎯 Zásah! Vedoucí má oko v obvazu, stres klesl o 30%!");
+                alert("🎯 Zásah! Stres klesl o 30%!");
                 this.showScreen('screen-game');
                 this.renderCustomer();
             }
         };
     }
 
-    // 2. Chytání lelků na WC (skuteční ptáci / lelci)
     startLelkyMinigame() {
         this.showScreen('screen-minigame');
         document.getElementById('minigame-title').innerText = "🐦 Chytání lelků na WC";
@@ -232,8 +230,8 @@ class Game {
 
         const content = document.getElementById('minigame-content');
         content.innerHTML = `
-            <p style="margin-bottom:5px; font-size:0.8rem;">Chyť 6 poletujících lelků na záchodě!</p>
-            <div class="phone-screen" id="lelky-screen" style="height:260px; position:relative; background:#18181b;">
+            <p style="margin-bottom:5px; font-size:0.8rem;">Chyť 6 poletujících lelků!</p>
+            <div class="phone-screen" style="height:260px; position:relative; background:#18181b;">
                 <div id="lelky-target" style="position:absolute; font-size:2.5rem; cursor:pointer; top:80px; left:80px;">🦅</div>
             </div>
             <p id="lelky-score" style="margin-top:5px;">Chyceno lelků: 0 / 6</p>
@@ -242,25 +240,24 @@ class Game {
         let score = 0;
         const target = document.getElementById('lelky-target');
         const counter = document.getElementById('lelky-score');
-        const lelkyIcons = ['🦅', '🦉', '🦆', '🦇', '🦜'];
+        const icons = ['🦅', '🦉', '🦆', '🦇', '🦜'];
 
         target.onclick = () => {
             score++;
             counter.innerText = `Chyceno lelků: ${score} / 6`;
             if (score >= 6) {
                 this.state.stress = Math.max(0, this.state.stress - 25);
-                alert("✨ Úspěšně chyceno 6 lelků! Zpět na prodejnu, stres -25%.");
+                alert("✨ 6 lelků chyceno! Stres -25%.");
                 this.showScreen('screen-game');
                 this.renderCustomer();
             } else {
-                target.innerText = lelkyIcons[Math.floor(Math.random() * lelkyIcons.length)];
+                target.innerText = icons[Math.floor(Math.random() * icons.length)];
                 target.style.top = `${Math.random() * 180 + 20}px`;
                 target.style.left = `${Math.random() * 140 + 20}px`;
             }
         };
     }
 
-    // 3. Hledání balíku na čas
     startPackageMinigame() {
         this.showScreen('screen-minigame');
         document.getElementById('minigame-title').innerText = "📦 Hledání ztraceného balíku";
@@ -270,8 +267,8 @@ class Game {
         const winningIndex = Math.floor(Math.random() * 6);
 
         content.innerHTML = `
-            <p style="margin-bottom:5px; font-size:0.8rem;">Najdi správnou krabici v rozházeném skladu!</p>
-            <div class="warehouse-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:280px; margin:10px auto;">
+            <p style="margin-bottom:5px; font-size:0.8rem;">Najdi správnou krabici ve skladu!</p>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:280px; margin:10px auto;">
                 ${[0,1,2,3,4,5].map(i => `<div class="warehouse-box" data-idx="${i}" style="background:#3f3f46; padding:15px; border-radius:8px; font-size:1.8rem; cursor:pointer;">📦</div>`).join('')}
             </div>
             <p id="pkg-timer" style="margin-top:5px; color:var(--danger); font-weight:bold;">Čas: 5s</p>
@@ -286,7 +283,7 @@ class Game {
             if (timeLeft <= 0) {
                 clearInterval(timer);
                 this.state.stress += 15;
-                alert("⏰ Čas vypršel! Zákazník odešel zuřit. Stres +15%!");
+                alert("⏰ Čas vypršel! Stres +15%!");
                 this.showScreen('screen-game');
                 this.renderCustomer();
             }
@@ -300,10 +297,10 @@ class Game {
                     this.state.turnover += 799;
                     this.state.margin += 400;
                     this.state.stress = Math.max(0, this.state.stress - 10);
-                    alert("🎉 Balík nalezen a předán! Obrat +799 Kč.");
+                    alert("🎉 Balík nalezen! Obrat +799 Kč.");
                 } else {
                     this.state.stress += 10;
-                    alert("💥 Špatná krabice! Našel jsi jen staré prospekty. Stres +10%!");
+                    alert("💥 Špatná krabice! Stres +10%!");
                 }
                 this.showScreen('screen-game');
                 this.renderCustomer();
@@ -311,7 +308,6 @@ class Game {
         });
     }
 
-    // 4. Lepení fólie: prach a chlupy přibývají, odklikáváš je, tlačítko uskakuje, sleva podle chlupů
     startFoilMinigame(item) {
         this.showScreen('screen-minigame');
         document.getElementById('minigame-title').innerText = "📱 Lepení fólie (Prachové peklo)";
@@ -319,11 +315,11 @@ class Game {
 
         const content = document.getElementById('minigame-content');
         content.innerHTML = `
-            <p style="margin-bottom:5px; font-size:0.75rem;">Odstraňuj prach a chlupy rychlým kliknutím! Tlačítko nalepit uskakuje.</p>
-            <div class="phone-screen" id="foil-area" style="height:200px; width:220px; position:relative; background:#000; margin:0 auto; border:4px solid #444; border-radius:12px; overflow:hidden;">
+            <p style="margin-bottom:5px; font-size:0.75rem;">Odstraňuj prach a klikni na uskakující tlačítko!</p>
+            <div style="height:200px; width:220px; position:relative; background:#000; margin:0 auto; border:4px solid #444; border-radius:12px; overflow:hidden;">
                 <div id="dust-box"></div>
             </div>
-            <div id="btn-container" style="margin-top:15px; position:relative; height:45px;">
+            <div style="margin-top:15px; position:relative; height:45px;">
                 <button id="btn-confirm-foil" class="btn primary" style="position:absolute; left:50%; transform:translateX(-50%); padding:8px 16px;">Nalepit fólii</button>
             </div>
         `;
@@ -335,7 +331,6 @@ class Game {
             if (dustCount < 12) {
                 dustCount++;
                 const p = document.createElement('div');
-                p.className = 'dust-particle';
                 p.style.position = 'absolute';
                 p.style.width = '14px';
                 p.style.height = '14px';
@@ -350,10 +345,7 @@ class Game {
             }
         };
 
-        // Vytvoření počátečního prachu
         for(let i=0; i<4; i++) spawnDust();
-
-        // Prach a chlupy rychle přibývají v reálném čase
         const dustSpawner = setInterval(spawnDust, 700);
 
         const foilBtn = document.getElementById('btn-confirm-foil');
@@ -367,16 +359,14 @@ class Game {
 
         foilBtn.onclick = () => {
             clearInterval(dustSpawner);
-            
-            // Čím víc chlupů, tím větší sleva (snížení marže)
             const discount = dustCount * 30;
             const finalPrice = Math.max(50, item.price - discount);
             const finalMargin = Math.max(5, (finalPrice - item.cost));
 
             if (dustCount === 0) {
-                alert(`💎 Mistrovské dílo! Fólie nalepena absolutně bez smítka. Plná cena ${finalPrice} Kč.`);
+                alert(`💎 Dokonalost! Bez smítka. Cena ${finalPrice} Kč.`);
             } else {
-                alert(`⚠️ Pod fólií zůstalo ${dustCount} chlupů a smítek prachu! Zákazník dostal slevu ${discount} Kč, cena je ${finalPrice} Kč a marže klesla.`);
+                alert(`⚠️ Pod fólií zbylo ${dustCount} smítek! Sleva ${discount} Kč, cena ${finalPrice} Kč.`);
                 this.state.stress += 8;
             }
 
